@@ -1,0 +1,232 @@
+.app-shell {
+  min-height: 100vh;
+  padding: 18px 24px 32px;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.content-grid--lobby {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.primary-column,
+.match-column {
+  min-width: 0;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+}
+
+.topbar--game {
+  max-width: 1400px;
+  margin: 0 auto 22px;
+  padding: 16px 22px;
+  background:
+    linear-gradient(180deg, rgba(13, 13, 22, 0.92), rgba(9, 10, 18, 0.92)),
+    radial-gradient(circle at right center, rgba(86, 214, 255, 0.08), transparent 24%);
+  border: 1px solid rgba(150, 51, 96, 0.22);
+  border-radius: 18px;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.32);
+}
+
+.topbar__brand {
+  display: grid;
+  gap: 4px;
+}
+
+.topbar__title {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.topbar__subtitle {
+  color: #9d97a7;
+  font-size: 13px;
+}
+
+.topbar__summary {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  color: #c7c0cd;
+  font-size: 13px;
+  align-items: center;
+}
+
+.topbar__faq-button {
+  min-height: 38px;
+  padding: 8px 14px;
+  border-radius: 12px;
+}
+
+.panel {
+  background: rgba(5, 10, 20, 0.82);
+  border: 1px solid rgba(255, 77, 141, 0.12);
+  border-radius: 12px;
+  padding: 16px;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 24px 60px rgba(2, 6, 23, 0.42);
+}
+
+.panel--major {
+  background:
+    linear-gradient(180deg, rgba(18, 13, 24, 0.96), rgba(9, 11, 19, 0.96)),
+    radial-gradient(circle at top right, rgba(150, 33, 84, 0.12), transparent 38%);
+  border: 1px solid var(--ui-panel-border);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
+}
+
+.panel--major h2,
+.piece-hero__body h3,
+.card h4,
+.match-result-modal__card h2 {
+  font-family: "Segoe UI", Inter, sans-serif;
+  font-weight: 800;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+  margin-bottom: 14px;
+}
+
+.section-head h2,
+.panel h2 {
+  margin: 0;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(139, 233, 253, 0.18);
+  background: rgba(8, 15, 28, 0.92);
+  color: #f3f7ff;
+}
+
+.meta-pill {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(21, 17, 28, 0.88);
+  border: 1px solid rgba(110, 55, 81, 0.22);
+}
+
+.meta-pill span {
+  font-size: 11px;
+  color: #998ea3;
+}
+
+.card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--ui-card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card h4 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.card__eyebrow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #9c98ab;
+}
+
+.ui-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--ui-chip-bg);
+  border: 1px solid var(--ui-chip-border);
+  color: #f5dbe5;
+  font-size: 12px;
+}
+
+.ui-chip--count,
+.ui-chip--side,
+.ui-chip--domain {
+  background: rgba(59, 21, 40, 0.56);
+}
+
+.status-banner {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(45, 31, 45, 0.7);
+  color: #f7e9ef;
+}
+
+.status-banner--ready {
+  background: rgba(84, 28, 57, 0.78);
+  color: #ffe3ef;
+}
+
+.status-banner--muted {
+  background: rgba(25, 23, 33, 0.82);
+  color: #cfc8d8;
+}
+
+.status-banner--danger {
+  background: rgba(90, 30, 46, 0.84);
+  color: #ffd4df;
+}
+
+@media (max-width: 1100px) {
+  .content-grid--lobby,
+  .topbar--game {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    padding: 16px 16px 24px;
+  }
+
+  .topbar--game {
+    margin-bottom: 16px;
+  }
+
+  .topbar__summary {
+    gap: 8px;
+  }
+}

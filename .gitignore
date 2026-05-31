@@ -1,0 +1,14 @@
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+.env
+.env.*
+!.env.example
+
+.playwright-mcp/
+
+/jjk_all_stars_chess.db
+/jjk-home*.png
+/match-ui-*.png
