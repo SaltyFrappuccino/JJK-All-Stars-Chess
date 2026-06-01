@@ -54,11 +54,8 @@ code {
 }
 
 .hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
-  gap: 28px;
+  display: block;
   padding: 30px;
-  align-items: center;
   overflow: hidden;
 }
 
@@ -102,12 +99,6 @@ code {
   color: var(--text);
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.04);
-}
-
-.hero__art svg {
-  width: 100%;
-  height: auto;
-  display: block;
 }
 
 .content {
@@ -328,7 +319,6 @@ code {
   }
 
   .hero {
-    grid-template-columns: 1fr;
     padding: 22px;
   }
 
