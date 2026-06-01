@@ -27,6 +27,10 @@ type HistoryItem = {
   room_code: string | null;
 };
 
+function showError(error: unknown, fallback: string) {
+  window.alert(error instanceof Error ? error.message : fallback);
+}
+
 export function App() {
   const [profile, setProfile] = useState<PlayerProfile | null>(() => loadProfile());
   const [session, setSession] = useState<{ guest_id: string; token: string; display_name: string } | null>(null);
@@ -48,14 +52,18 @@ export function App() {
     if (!profile) {
       return;
     }
-    createGuestSession(profile.nickname).then(setSession);
+    createGuestSession(profile.nickname).then(setSession).catch((error) => {
+      showError(error, "Не удалось открыть гостевую сессию.");
+    });
   }, [profile]);
 
   useEffect(() => {
     if (!session) {
       return;
     }
-    fetchHistory(session.token).then(setHistory);
+    fetchHistory(session.token).then((items) => setHistory(items as HistoryItem[])).catch((error) => {
+      showError(error, "Не удалось загрузить историю матчей.");
+    });
   }, [session]);
 
   useEffect(() => {
@@ -108,14 +116,19 @@ export function App() {
     }
     setLoading(true);
     setOpponentKind("pvp");
-    const room = await createRoom(session.token, session.display_name);
-    setMatchId(room.match_id);
-    setPlayerSide(room.side);
-    setSelectedPieceId(null);
-    setLegalActions({});
-    setShowFaq(false);
-    openSocket(room.match_id, session.token);
-    setLoading(false);
+    try {
+      const room = await createRoom(session.token, session.display_name);
+      setMatchId(room.match_id);
+      setPlayerSide(room.side);
+      setSelectedPieceId(null);
+      setLegalActions({});
+      setShowFaq(false);
+      openSocket(room.match_id, session.token);
+    } catch (error) {
+      showError(error, "Не удалось создать комнату.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleJoinRoom = async (roomCode: string) => {
@@ -124,14 +137,19 @@ export function App() {
     }
     setLoading(true);
     setOpponentKind("pvp");
-    const room = await joinRoom(session.token, roomCode, session.display_name);
-    setMatchId(room.match_id);
-    setPlayerSide(room.side);
-    setSelectedPieceId(null);
-    setLegalActions({});
-    setShowFaq(false);
-    openSocket(room.match_id, session.token);
-    setLoading(false);
+    try {
+      const room = await joinRoom(session.token, roomCode, session.display_name);
+      setMatchId(room.match_id);
+      setPlayerSide(room.side);
+      setSelectedPieceId(null);
+      setLegalActions({});
+      setShowFaq(false);
+      openSocket(room.match_id, session.token);
+    } catch (error) {
+      showError(error, "Не удалось войти в комнату.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBotMatch = async (side: Side) => {
@@ -140,19 +158,28 @@ export function App() {
     }
     setLoading(true);
     setOpponentKind("bot");
-    const match = await createBotMatch(session.token, session.display_name, side);
-    setMatchId(match.match_id);
-    setPlayerSide(match.side);
-    setSelectedPieceId(null);
-    setLegalActions({});
-    setShowFaq(false);
-    openSocket(match.match_id, session.token);
-    setLoading(false);
+    try {
+      const match = await createBotMatch(session.token, session.display_name, side);
+      setMatchId(match.match_id);
+      setPlayerSide(match.side);
+      setSelectedPieceId(null);
+      setLegalActions({});
+      setShowFaq(false);
+      openSocket(match.match_id, session.token);
+    } catch (error) {
+      showError(error, "Не удалось создать матч с ботом.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLoadReplay = async (nextMatchId: string) => {
-    const replay = await fetchReplay(nextMatchId);
-    setReplayLog(replay.replay_log);
+    try {
+      const replay = await fetchReplay(nextMatchId);
+      setReplayLog(replay.replay_log);
+    } catch (error) {
+      showError(error, "Не удалось загрузить повтор.");
+    }
   };
 
   const topbarName = session?.display_name ?? profile?.nickname ?? "Игрок";

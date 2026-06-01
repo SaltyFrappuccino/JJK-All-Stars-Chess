@@ -279,6 +279,78 @@
   color: #9fc9dc;
 }
 
+.faq-effect-token {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 0 2px;
+  font-weight: 700;
+  cursor: help;
+  outline: none;
+  transition: color 140ms ease, text-shadow 140ms ease;
+}
+
+.faq-effect-token--pink {
+  color: #ff92c6;
+  text-shadow: 0 0 12px rgba(255, 118, 182, 0.28);
+}
+
+.faq-effect-token--blue {
+  color: #89ebff;
+  text-shadow: 0 0 12px rgba(103, 232, 255, 0.28);
+}
+
+.faq-effect-token--gold {
+  color: #ffd48e;
+  text-shadow: 0 0 12px rgba(255, 201, 111, 0.24);
+}
+
+.faq-effect-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 12px);
+  z-index: 20;
+  width: min(260px, 72vw);
+  padding: 12px 14px;
+  display: grid;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(20, 18, 31, 0.98), rgba(11, 12, 19, 0.98)),
+    radial-gradient(circle at top, rgba(255, 119, 184, 0.12), transparent 45%);
+  color: #f5f1f8;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 6px);
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.faq-effect-tooltip strong {
+  font-size: 13px;
+}
+
+.faq-effect-tooltip span {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #d2cbd9;
+  white-space: normal;
+}
+
+.faq-effect-token:hover .faq-effect-tooltip,
+.faq-effect-token:focus-visible .faq-effect-tooltip,
+.faq-effect-token:focus .faq-effect-tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.faq-effect-token:focus-visible {
+  box-shadow: 0 0 0 2px rgba(139, 238, 255, 0.24);
+}
+
 .faq-status-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

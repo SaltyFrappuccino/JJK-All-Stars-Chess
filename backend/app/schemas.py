@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class GuestSessionResponse(BaseModel):
@@ -37,8 +37,8 @@ class ActionEnvelope(BaseModel):
     kind: Literal["normal_move", "technique_cast", "domain_cast", "resign"]
     piece_id: str | None = None
     to: list[int] | None = None
-    targets: list[str] = Field(default_factory=list)
-    cells: list[list[int]] = Field(default_factory=list)
+    targets: list[str] | None = None
+    cells: list[list[int]] | None = None
 
 
 class MatchEnvelope(BaseModel):

@@ -27,11 +27,14 @@ def get_guest_by_token(token: str) -> Guest | None:
 def create_room(match_id: str, white_guest_id: str) -> RoomRecord:
     alphabet = string.ascii_uppercase + string.digits
     with SessionLocal() as session:
-        room = RoomRecord(code="".join(secrets.choice(alphabet) for _ in range(6)), match_id=match_id, white_guest_id=white_guest_id)
-        session.add(room)
-        session.commit()
-        session.refresh(room)
-        return room
+        while True:
+            room_code = "".join(secrets.choice(alphabet) for _ in range(6))
+            if session.get(RoomRecord, room_code) is None:
+                room = RoomRecord(code=room_code, match_id=match_id, white_guest_id=white_guest_id)
+                session.add(room)
+                session.commit()
+                session.refresh(room)
+                return room
 
 
 def get_room(room_code: str) -> RoomRecord | None:
@@ -42,6 +45,10 @@ def get_room(room_code: str) -> RoomRecord | None:
 def save_room_join(room_code: str, black_guest_id: str) -> RoomRecord:
     with SessionLocal() as session:
         room = session.get(RoomRecord, room_code)
+        if room is None:
+            raise ValueError("Room not found")
+        if room.black_guest_id and room.black_guest_id != black_guest_id:
+            raise ValueError("Room already full")
         room.black_guest_id = black_guest_id
         room.status = "ready"
         session.commit()
@@ -69,11 +76,24 @@ def create_match(match_id: str, snapshot: dict, white_guest_id: str | None, blac
 def update_match(match_id: str, snapshot: dict, replay_log: list, winner: str | None, winner_reason: str | None) -> MatchRecord:
     with SessionLocal() as session:
         match = session.get(MatchRecord, match_id)
+        if match is None:
+            raise ValueError("Match not found")
         match.snapshot = snapshot
         match.replay_log = replay_log
         match.winner = winner
         match.winner_reason = winner_reason
         match.status = "finished" if winner else "active"
+        session.commit()
+        session.refresh(match)
+        return match
+
+
+def attach_room_code(match_id: str, room_code: str) -> MatchRecord:
+    with SessionLocal() as session:
+        match = session.get(MatchRecord, match_id)
+        if match is None:
+            raise ValueError("Match not found")
+        match.room_code = room_code
         session.commit()
         session.refresh(match)
         return match

@@ -23,6 +23,30 @@ def move_piece(state: MatchState, piece: Piece, x: int, y: int, killer_side: str
     return moved_piece_ids
 
 
+def spawn_mahoraga(state: MatchState, side: str, x: int, y: int) -> None:
+    piece_id = f"{side}_mahoraga"
+    existing = state.pieces.get(piece_id)
+    if existing:
+        existing.alive = True
+        existing.x = x
+        existing.y = y
+        existing.cooldown = 0
+        existing.technique_used = False
+        existing.domain_used = False
+        existing.technique_state = "mahoraga_0"
+    else:
+        state.pieces[piece_id] = Piece(
+            id=piece_id,
+            side=side,
+            role="pawn",
+            name="Mahoraga",
+            x=x,
+            y=y,
+            technique_state="mahoraga_0",
+        )
+    add_event(state, "piece_spawned", piece_id=piece_id, at=[x, y])
+
+
 def apply_technique_effect(state: MatchState, piece: Piece, action: dict[str, Any], moved_piece_ids: list[str]) -> None:
     technique_id = current_technique_id(piece)
     targets = [state.pieces[target_id] for target_id in action.get("targets", []) if target_id in state.pieces]
@@ -99,7 +123,15 @@ def apply_technique_effect(state: MatchState, piece: Piece, action: dict[str, An
         else:
             kill_piece(state, target.id, killer_side=piece.side, by_technique=True)
     elif technique_id == "megumi":
+        should_spawn_mahoraga = (piece.side == "white" and piece.y <= 1) or (piece.side == "black" and piece.y >= 6)
+        summon_x, summon_y = piece.x, piece.y
         kill_piece(state, piece.id, by_technique=True)
+        if should_spawn_mahoraga:
+            spawn_mahoraga(state, piece.side, summon_x, summon_y)
+    elif technique_id == "mahoraga":
+        next_stage = min(3, int((piece.technique_state or "mahoraga_0").rsplit("_", 1)[-1]) + 1)
+        piece.technique_state = f"mahoraga_{next_stage}"
+        add_event(state, "wheel_rotated", piece_id=piece.id, stage=next_stage)
     elif technique_id == "nobara":
         target = targets[0]
         add_status(state, target.id, "silence", 1, piece.id)

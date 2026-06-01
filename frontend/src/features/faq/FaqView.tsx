@@ -8,10 +8,50 @@ import {
   statusCatalog,
   type AbilityInfo,
 } from "../../lib/presentation";
+import type { ReactNode } from "react";
 
 type Props = {
   onBack: () => void;
 };
+
+const statusByLabel = new Map(statusCatalog.map((status) => [status.label.toLocaleLowerCase("ru-RU"), status]));
+const statusLabelsPattern = new RegExp(
+  `(${statusCatalog
+    .map((status) => status.label)
+    .sort((left, right) => right.length - left.length)
+    .map((label) => label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|")})`,
+  "giu",
+);
+
+function effectTone(kind: string): "pink" | "blue" | "gold" {
+  if (["silence", "stop", "distortion", "marked"].includes(kind)) {
+    return "pink";
+  }
+  if (["paralysis", "mass_pressure", "no_capture_energy"].includes(kind)) {
+    return "blue";
+  }
+  return "gold";
+}
+
+function renderEffectText(text: string): ReactNode {
+  return text.split(statusLabelsPattern).map((fragment, index) => {
+    const status = statusByLabel.get(fragment.toLocaleLowerCase("ru-RU"));
+    if (!status) {
+      return <span key={`${fragment}-${index}`}>{fragment}</span>;
+    }
+
+    return (
+      <span key={`${status.kind}-${index}`} className={`faq-effect-token faq-effect-token--${effectTone(status.kind)}`} tabIndex={0}>
+        {fragment}
+        <span className="faq-effect-tooltip" role="tooltip">
+          <strong>{status.label}</strong>
+          <span>{status.description}</span>
+        </span>
+      </span>
+    );
+  });
+}
 
 function FigureSigil({ tone }: { tone: "pink" | "blue" }) {
   const stroke = tone === "pink" ? "#ff83bf" : "#87ebff";
@@ -54,8 +94,8 @@ function AbilityCard({
         </div>
         <h3>{ability.label}</h3>
         <div className="faq-ability-card__owner">{owner}</div>
-        <p>{ability.summary}</p>
-        <div className="faq-ability-card__hint">{ability.usage}</div>
+          <p>{renderEffectText(ability.summary)}</p>
+          <div className="faq-ability-card__hint">{renderEffectText(ability.usage)}</div>
       </div>
     </article>
   );
@@ -101,11 +141,11 @@ export function FaqView({ onBack }: Props) {
     <section className="faq-page">
       <section className="panel panel--major faq-hero">
         <div className="faq-hero__copy">
-          <div className="faq-hero__eyebrow">Справочник Партии</div>
+          <div className="faq-hero__eyebrow">Справочник партии</div>
           <h1>FAQ: Фигуры, Техники, РТ и Статусы</h1>
           <p>
-            Полный справочник по правилам поля: кто за что отвечает, как работают статус-эффекты, что именно делает каждая
-            техника и чем отличаются расширения территории.
+            Полный справочник по правилам поля: кто за что отвечает, как работают статус-эффекты, что именно делает каждая техника и чем отличаются
+            расширения территории.
           </p>
           <div className="faq-hero__actions">
             <a href="#faq-pieces" className="accent-button faq-link-button">
@@ -155,7 +195,7 @@ export function FaqView({ onBack }: Props) {
                     <span>{formatRole(piece.role)}</span>
                   </div>
                   <h3>{formatPieceName(piece.name)}</h3>
-                  <p>{piece.summary}</p>
+                  <p>{renderEffectText(piece.summary)}</p>
                   <div className="faq-piece-card__meta">
                     {techniqueNames ? <span>Техника: {techniqueNames}</span> : <span>Техника: через копирование</span>}
                     {domainName ? <span>РТ: {domainName}</span> : <span>РТ: отсутствует</span>}
@@ -197,8 +237,8 @@ export function FaqView({ onBack }: Props) {
           {statusCatalog.map((status, index) => (
             <article key={status.kind} className="faq-status-card">
               <div className={`faq-status-card__dot faq-status-card__dot--${index % 2 === 0 ? "pink" : "blue"}`} />
-              <h3>{status.label}</h3>
-              <p>{status.description}</p>
+              <h3>{renderEffectText(status.label)}</h3>
+              <p>{renderEffectText(status.description)}</p>
             </article>
           ))}
         </div>
@@ -206,4 +246,3 @@ export function FaqView({ onBack }: Props) {
     </section>
   );
 }
-

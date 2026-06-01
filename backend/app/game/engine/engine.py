@@ -14,6 +14,23 @@ class EngineError(ValueError):
     pass
 
 
+def normalize_action(action: dict[str, Any]) -> dict[str, Any]:
+    normalized: dict[str, Any] = {"kind": action["kind"]}
+    for key in ("piece_id", "to"):
+        value = action.get(key)
+        if value is not None:
+            normalized[key] = value
+    for key in ("targets", "cells"):
+        value = action.get(key)
+        if value:
+            normalized[key] = value
+    return normalized
+
+
+def normalize_actions(actions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [normalize_action(action) for action in actions]
+
+
 def get_piece_legal_actions(state: MatchState, piece_id: str) -> list[dict[str, Any]]:
     piece = state.pieces[piece_id]
     if not piece.alive or piece.side != state.side_to_move:
@@ -27,8 +44,8 @@ def get_piece_legal_actions(state: MatchState, piece_id: str) -> list[dict[str, 
             next_state = apply_action(state.clone(), action, validate=False)
             if next_state.technique_check is None or next_state.technique_check.target_side != state.side_to_move:
                 filtered.append(action)
-        return filtered
-    return actions
+        return normalize_actions(filtered)
+    return normalize_actions(actions)
 
 
 def get_all_legal_actions(state: MatchState, side: str | None = None) -> list[dict[str, Any]]:
@@ -39,18 +56,19 @@ def get_all_legal_actions(state: MatchState, side: str | None = None) -> list[di
     for piece in alive_pieces(state, current):
         result.extend(get_piece_legal_actions(state, piece.id))
     result.append({"kind": "resign"})
-    return result
+    return normalize_actions(result)
 
 
 def validate_action_shape(action: dict[str, Any]) -> None:
     if action["kind"] not in {"normal_move", "technique_cast", "domain_cast", "resign"}:
-        raise EngineError("РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї РґРµР№СЃС‚РІРёСЏ")
+        raise EngineError("Неизвестный тип действия")
 
 
 def apply_action(state: MatchState, action: dict[str, Any], validate: bool = True) -> MatchState:
+    action = normalize_action(action)
     validate_action_shape(action)
     if state.winner:
-        raise EngineError("РњР°С‚С‡ СѓР¶Рµ Р·Р°РІРµСЂС€С‘РЅ")
+        raise EngineError("Матч уже завершён")
     if action["kind"] == "resign":
         state.winner = other_side(state.side_to_move)
         state.winner_reason = "resign"
@@ -60,9 +78,8 @@ def apply_action(state: MatchState, action: dict[str, Any], validate: bool = Tru
     piece = state.pieces[action["piece_id"]]
     if validate:
         legal_actions = get_piece_legal_actions(state, piece.id)
-        normalized = [str(item) for item in legal_actions]
-        if str(action) not in normalized:
-            raise EngineError("РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ РґРµР№СЃС‚РІРёРµ")
+        if action not in legal_actions:
+            raise EngineError("Недопустимое действие")
 
     moved_piece_ids: list[str] = []
     if action["kind"] == "normal_move":
@@ -70,8 +87,9 @@ def apply_action(state: MatchState, action: dict[str, Any], validate: bool = Tru
         moved_piece_ids = move_piece(state, piece, x, y, killer_side=piece.side)
     elif action["kind"] == "technique_cast":
         state.energy[piece.side] -= technique_cost(piece)
-        piece.technique_used = True if piece.role == "pawn" else piece.technique_used
-        if piece.role != "pawn":
+        if piece.role == "pawn" and piece.name != "Mahoraga":
+            piece.technique_used = True
+        if piece.role != "pawn" or piece.name == "Mahoraga":
             piece.cooldown = 1
         apply_technique_effect(state, piece, action, moved_piece_ids)
         state.event_log.append({"kind": "technique_cast", "piece_id": piece.id, "action": action})

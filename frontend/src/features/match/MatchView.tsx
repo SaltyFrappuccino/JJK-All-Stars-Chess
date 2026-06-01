@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { PhaserBoard } from "../../game/phaser/PhaserBoard";
+import { findActionForCell, isDirectAction } from "../../lib/actions";
 import { submitAction } from "../../lib/api";
 import {
   formatDomainName,
@@ -46,50 +47,50 @@ function renderEnergyRow(side: Side, energy: number) {
 
 function winnerReasonLabel(reason: string | null) {
   if (reason === "sukuna_captured") {
-    return "Сукуна захвачен обычным ходом.";
+    return "РЎСѓРєСѓРЅР° Р·Р°С…РІР°С‡РµРЅ РѕР±С‹С‡РЅС‹Рј С…РѕРґРѕРј.";
   }
   if (reason === "resign") {
-    return "Соперник сдался.";
+    return "РЎРѕРїРµСЂРЅРёРє СЃРґР°Р»СЃСЏ.";
   }
-  return "Партия завершена.";
+  return "РџР°СЂС‚РёСЏ Р·Р°РІРµСЂС€РµРЅР°.";
 }
 
 function compactReason(reason: string | null, sideToMove: Side) {
   if (!reason) {
-    return "Готово к действию";
+    return "Р“РѕС‚РѕРІРѕ Рє РґРµР№СЃС‚РІРёСЋ";
   }
-  if (reason.startsWith("Сейчас не ход")) {
-    return `Сейчас ход ${formatSide(sideToMove).toLowerCase()}`;
+  if (reason.startsWith("РЎРµР№С‡Р°СЃ РЅРµ С…РѕРґ")) {
+    return `РЎРµР№С‡Р°СЃ С…РѕРґ ${formatSide(sideToMove).toLowerCase()}`;
   }
-  if (reason.startsWith("Недостаточно энергии")) {
-    return "Недостаточно энергии";
+  if (reason.startsWith("РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ СЌРЅРµСЂРіРёРё")) {
+    return "РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ СЌРЅРµСЂРіРёРё";
   }
-  if (reason.startsWith("Сейчас нет доступной цели")) {
-    return "Нет цели";
+  if (reason.startsWith("РЎРµР№С‡Р°СЃ РЅРµС‚ РґРѕСЃС‚СѓРїРЅРѕР№ С†РµР»Рё")) {
+    return "РќРµС‚ С†РµР»Рё";
   }
-  if (reason.startsWith("Глобальный откат")) {
-    return "РТ на откате";
+  if (reason.startsWith("Р“Р»РѕР±Р°Р»СЊРЅС‹Р№ РѕС‚РєР°С‚")) {
+    return "Р Рў РЅР° РѕС‚РєР°С‚Рµ";
   }
-  if (reason.startsWith("Техника на перезарядке")) {
-    return "Перезарядка";
+  if (reason.startsWith("РўРµС…РЅРёРєР° РЅР° РїРµСЂРµР·Р°СЂСЏРґРєРµ")) {
+    return "РџРµСЂРµР·Р°СЂСЏРґРєР°";
   }
-  if (reason.startsWith("Пешечная техника")) {
-    return "Техника потрачена";
+  if (reason.startsWith("РџРµС€РµС‡РЅР°СЏ С‚РµС…РЅРёРєР°")) {
+    return "РўРµС…РЅРёРєР° РїРѕС‚СЂР°С‡РµРЅР°";
   }
-  if (reason.startsWith("Эта РТ уже")) {
-    return "РТ потрачена";
+  if (reason.startsWith("Р­С‚Р° Р Рў СѓР¶Рµ")) {
+    return "Р Рў РїРѕС‚СЂР°С‡РµРЅР°";
   }
-  if (reason.startsWith("Пока на доске")) {
-    return "Другая РТ уже активна";
+  if (reason.startsWith("РџРѕРєР° РЅР° РґРѕСЃРєРµ")) {
+    return "Р”СЂСѓРіР°СЏ Р Рў СѓР¶Рµ Р°РєС‚РёРІРЅР°";
   }
-  if (reason.startsWith("Сначала Юта")) {
-    return "Сначала скопируйте технику";
+  if (reason.startsWith("РЎРЅР°С‡Р°Р»Р° Р®С‚Р°")) {
+    return "РЎРЅР°С‡Р°Р»Р° СЃРєРѕРїРёСЂСѓР№С‚Рµ С‚РµС…РЅРёРєСѓ";
   }
-  if (reason.startsWith("У пешек")) {
-    return "РТ отсутствует";
+  if (reason.startsWith("РЈ РїРµС€РµРє")) {
+    return "Р Рў РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚";
   }
-  if (reason.startsWith("Фигура сейчас")) {
-    return "Действие заблокировано";
+  if (reason.startsWith("Р¤РёРіСѓСЂР° СЃРµР№С‡Р°СЃ")) {
+    return "Р”РµР№СЃС‚РІРёРµ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅРѕ";
   }
   return reason;
 }
@@ -98,7 +99,7 @@ function statusTone(reason: string | null) {
   if (!reason) {
     return "ready";
   }
-  if (reason.startsWith("Недостаточно энергии") || reason.startsWith("Фигура сейчас")) {
+  if (reason.startsWith("РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ СЌРЅРµСЂРіРёРё") || reason.startsWith("Р¤РёРіСѓСЂР° СЃРµР№С‡Р°СЃ")) {
     return "danger";
   }
   return "muted";
@@ -127,6 +128,7 @@ export function MatchView({
   const techniqueActions = useMemo(() => selectedActions.filter((item) => item.kind === "technique_cast"), [selectedActions]);
   const domainActions = useMemo(() => selectedActions.filter((item) => item.kind === "domain_cast"), [selectedActions]);
   const displayedActions = useMemo(() => selectedActions.filter((item) => item.kind === actionMode), [actionMode, selectedActions]);
+  const directAction = useMemo(() => displayedActions.find((item) => isDirectAction(item)) ?? null, [displayedActions]);
   const visibleEvents = useMemo(() => state.event_log.slice(-24).reverse(), [state.event_log]);
   const actionCounts = useMemo(() => groupActionCounts(selectedActions), [selectedActions]);
   const selectedStatuses = selectedPiece ? state.statuses[selectedPiece.id] ?? [] : [];
@@ -142,7 +144,7 @@ export function MatchView({
       return message;
     }
     if (!selectedPiece) {
-      return "Выберите фигуру";
+      return "Р’С‹Р±РµСЂРёС‚Рµ С„РёРіСѓСЂСѓ";
     }
     if (actionMode === "technique_cast") {
       return techniqueReason;
@@ -151,10 +153,10 @@ export function MatchView({
       return domainReason;
     }
     if (!moveActions.length && selectedPiece.side === state.side_to_move) {
-      return "Нет хода";
+      return "РќРµС‚ С…РѕРґР°";
     }
     if (selectedPiece.side !== state.side_to_move) {
-      return `Сейчас ход ${formatSide(state.side_to_move).toLowerCase()}`;
+      return `РЎРµР№С‡Р°СЃ С…РѕРґ ${formatSide(state.side_to_move).toLowerCase()}`;
     }
     return null;
   }, [actionMode, domainReason, message, moveActions.length, selectedPiece, state.side_to_move, techniqueReason]);
@@ -190,32 +192,28 @@ export function MatchView({
       return;
     }
 
-    const action = displayedActions.find((candidate) => {
-      if (candidate.to) {
-        return candidate.to[0] === x && candidate.to[1] === y;
-      }
-      if (candidate.cells) {
-        return candidate.cells.some((cell) => cell[0] === x && cell[1] === y);
-      }
-      if (candidate.targets) {
-        return candidate.targets.some((targetId) => {
-          const target = state.pieces[targetId];
-          return target && target.x === x && target.y === y;
-        });
-      }
-      return false;
-    });
-
+    const action = findActionForCell(displayedActions, x, y, state.pieces);
     if (!action) {
-      setMessage("Нет цели");
+      setMessage("РќРµС‚ С†РµР»Рё");
       return;
     }
 
     if (!submitAction(socket, action)) {
-      setMessage("Соединение потеряно");
+      setMessage("РЎРѕРµРґРёРЅРµРЅРёРµ РїРѕС‚РµСЂСЏРЅРѕ");
       return;
     }
 
+    setMessage("");
+  };
+
+  const handleDirectAction = () => {
+    if (!socket || !directAction) {
+      return;
+    }
+    if (!submitAction(socket, directAction)) {
+      setMessage("РЎРѕРµРґРёРЅРµРЅРёРµ РїРѕС‚РµСЂСЏРЅРѕ");
+      return;
+    }
     setMessage("");
   };
 
@@ -225,7 +223,7 @@ export function MatchView({
         <aside className="match-column match-column--left">
           <section className="panel panel--major inspector-panel inspector-panel--game">
             <div className="section-head">
-              <h2>Фигура</h2>
+              <h2>Р¤РёРіСѓСЂР°</h2>
               {selectedPiece ? <span className="ui-chip ui-chip--side">{formatSide(selectedPiece.side)}</span> : null}
             </div>
 
@@ -238,7 +236,7 @@ export function MatchView({
                   <div className="piece-hero__body">
                     <h3>{formatPieceName(selectedPiece.name)}</h3>
                     <div className="piece-hero__meta">
-                      {formatRole(selectedPiece.role)} · {formatSide(selectedPiece.side)} · Перезарядка {selectedPiece.cooldown}
+                      {formatRole(selectedPiece.role)} В· {formatSide(selectedPiece.side)} В· РџРµСЂРµР·Р°СЂСЏРґРєР° {selectedPiece.cooldown}
                     </div>
                     <div className={`status-banner status-banner--${statusTone(activeReason)}`}>
                       {compactReason(activeReason, state.side_to_move)}
@@ -251,9 +249,9 @@ export function MatchView({
                     className={actionMode === "normal_move" ? "action-button action-button--selected" : "action-button"}
                     disabled={!moveActions.length}
                     onClick={() => setActionMode("normal_move")}
-                    title={!moveActions.length ? "Нет хода" : ""}
+                    title={!moveActions.length ? "РќРµС‚ С…РѕРґР°" : ""}
                   >
-                    Ход
+                    РҐРѕРґ
                   </button>
                   <button
                     className={actionMode === "technique_cast" ? "action-button action-button--selected" : "action-button"}
@@ -261,7 +259,7 @@ export function MatchView({
                     onClick={() => setActionMode("technique_cast")}
                     title={techniqueReason ?? ""}
                   >
-                    Техника
+                    РўРµС…РЅРёРєР°
                   </button>
                   <button
                     className={actionMode === "domain_cast" ? "action-button action-button--selected" : "action-button"}
@@ -269,9 +267,17 @@ export function MatchView({
                     onClick={() => setActionMode("domain_cast")}
                     title={domainReason ?? ""}
                   >
-                    РТ
+                    Р Рў
                   </button>
                 </div>
+
+                {directAction ? (
+                  <div className="chip-row chip-row--spaced">
+                    <button className="ghost" onClick={handleDirectAction}>
+                      Применить
+                    </button>
+                  </div>
+                ) : null}
 
                 <div className="chip-row chip-row--spaced">
                   {actionCounts.map((item) => (
@@ -285,8 +291,8 @@ export function MatchView({
                   {technique ? (
                     <section className={`card card--detail${actionMode === "technique_cast" ? " card--active" : ""}`}>
                       <div className="card__eyebrow">
-                        <span>Техника</span>
-                        <strong>{technique.cost === null ? "Без Затрат" : `${technique.cost} Энергии`}</strong>
+                        <span>РўРµС…РЅРёРєР°</span>
+                        <strong>{technique.cost === null ? "Р‘РµР· Р—Р°С‚СЂР°С‚" : `${technique.cost} Р­РЅРµСЂРіРёРё`}</strong>
                       </div>
                       <h4>{technique.label}</h4>
                       <p>{technique.summary}</p>
@@ -296,8 +302,8 @@ export function MatchView({
                   {domain ? (
                     <section className={`card card--detail card--domain${actionMode === "domain_cast" ? " card--active" : ""}`}>
                       <div className="card__eyebrow">
-                        <span>РТ</span>
-                        <strong>{domain.cost === null ? "Без Затрат" : `${domain.cost} Энергии`}</strong>
+                        <span>Р Рў</span>
+                        <strong>{domain.cost === null ? "Р‘РµР· Р—Р°С‚СЂР°С‚" : `${domain.cost} Р­РЅРµСЂРіРёРё`}</strong>
                       </div>
                       <h4>{domain.label}</h4>
                       <p>{domain.summary}</p>
@@ -307,7 +313,7 @@ export function MatchView({
 
                 <section className="card card--status-list">
                   <div className="card__eyebrow">
-                    <span>Статусы</span>
+                    <span>РЎС‚Р°С‚СѓСЃС‹</span>
                   </div>
                   {selectedStatuses.length > 0 ? (
                     <div className="status-list">
@@ -315,21 +321,21 @@ export function MatchView({
                         <div key={`${status.kind}-${status.turns}`} className="status-item">
                           <div className="status-item__head">
                             <span>{formatStatus(status.kind)}</span>
-                            <strong>{status.turns} ход</strong>
+                            <strong>{status.turns} С…РѕРґ</strong>
                           </div>
                           <div className="status-item__body">{getStatusDescription(status.kind)}</div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="empty-note">Статусы отсутствуют</div>
+                    <div className="empty-note">РЎС‚Р°С‚СѓСЃС‹ РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‚</div>
                   )}
                 </section>
               </>
             ) : (
               <section className="card card--empty">
-                <h3>Выберите фигуру</h3>
-                <p>Нажмите на свою фигуру на доске, чтобы открыть действия и техники.</p>
+                <h3>Р’С‹Р±РµСЂРёС‚Рµ С„РёРіСѓСЂСѓ</h3>
+                <p>РќР°Р¶РјРёС‚Рµ РЅР° СЃРІРѕСЋ С„РёРіСѓСЂСѓ РЅР° РґРѕСЃРєРµ, С‡С‚РѕР±С‹ РѕС‚РєСЂС‹С‚СЊ РґРµР№СЃС‚РІРёСЏ Рё С‚РµС…РЅРёРєРё.</p>
               </section>
             )}
           </section>
@@ -339,32 +345,32 @@ export function MatchView({
           <section className="panel panel--major stage-panel">
             <div className="stage-toolbar">
               <div className="meta-pill">
-                <span>Матч</span>
+                <span>РњР°С‚С‡</span>
                 <strong>{matchId.slice(0, 8)}</strong>
               </div>
               <div className="meta-pill">
-                <span>Ваш цвет</span>
+                <span>Р’Р°С€ С†РІРµС‚</span>
                 <strong>{formatSide(playerSide)}</strong>
               </div>
               <div className="meta-pill">
-                <span>Ход</span>
+                <span>РҐРѕРґ</span>
                 <strong>{formatSide(state.side_to_move)}</strong>
               </div>
               <button className="ghost" onClick={onLeave}>
-                Выйти
+                Р’С‹Р№С‚Рё
               </button>
             </div>
 
             <div className="player-banner player-banner--top">
               <div className="player-banner__identity">
-                <span className="player-banner__label">Верх</span>
+                <span className="player-banner__label">Р’РµСЂС…</span>
                 <strong>{playerNames.black}</strong>
               </div>
               <div className="player-banner__stats">
                 {renderEnergyRow("black", state.energy.black)}
                 <div className="player-banner__meta">
-                  <span>Энергия {state.energy.black}</span>
-                  <span>РТ {state.global_domain_lock.black}</span>
+                  <span>Р­РЅРµСЂРіРёСЏ {state.energy.black}</span>
+                  <span>Р Рў {state.global_domain_lock.black}</span>
                 </div>
               </div>
             </div>
@@ -382,14 +388,14 @@ export function MatchView({
 
             <div className="player-banner player-banner--bottom">
               <div className="player-banner__identity">
-                <span className="player-banner__label">Низ</span>
+                <span className="player-banner__label">РќРёР·</span>
                 <strong>{playerNames.white}</strong>
               </div>
               <div className="player-banner__stats">
                 {renderEnergyRow("white", state.energy.white)}
                 <div className="player-banner__meta">
-                  <span>Энергия {state.energy.white}</span>
-                  <span>РТ {state.global_domain_lock.white}</span>
+                  <span>Р­РЅРµСЂРіРёСЏ {state.energy.white}</span>
+                  <span>Р Рў {state.global_domain_lock.white}</span>
                 </div>
               </div>
             </div>
@@ -399,22 +405,22 @@ export function MatchView({
         <aside className="match-column match-column--right">
           <section className="panel panel--major feed-panel feed-panel--game">
             <div className="section-head">
-              <h2>Ход Партии</h2>
+              <h2>РҐРѕРґ РџР°СЂС‚РёРё</h2>
             </div>
 
             <div className="journal-rail">
               {state.active_domain ? (
-                <div className="ui-chip ui-chip--domain">Активная РТ: {formatDomainName(state.active_domain.name)}</div>
+                <div className="ui-chip ui-chip--domain">РђРєС‚РёРІРЅР°СЏ Р Рў: {formatDomainName(state.active_domain.name)}</div>
               ) : null}
               {state.technique_check ? (
                 <div className="status-banner status-banner--danger">
-                  Шах техникой: под угрозой {formatSide(state.technique_check.target_side)}
+                  РЁР°С… С‚РµС…РЅРёРєРѕР№: РїРѕРґ СѓРіСЂРѕР·РѕР№ {formatSide(state.technique_check.target_side)}
                 </div>
               ) : null}
               {hoveredPiece ? (
                 <div className="card card--hover-status">
                   <div className="card__eyebrow">
-                    <span>Под курсором</span>
+                    <span>РџРѕРґ РєСѓСЂСЃРѕСЂРѕРј</span>
                   </div>
                   <h4>{formatPieceName(hoveredPiece.name)}</h4>
                   {hoveredStatuses.length > 0 ? (
@@ -423,14 +429,14 @@ export function MatchView({
                         <div key={`${hoveredPiece.id}-${status.kind}-${status.turns}`} className="status-item status-item--compact">
                           <div className="status-item__head">
                             <span>{formatStatus(status.kind)}</span>
-                            <strong>{status.turns} ход</strong>
+                            <strong>{status.turns} С…РѕРґ</strong>
                           </div>
                           <div className="status-item__body">{getStatusDescription(status.kind)}</div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="empty-note">Эффекты отсутствуют</div>
+                    <div className="empty-note">Р­С„С„РµРєС‚С‹ РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‚</div>
                   )}
                 </div>
               ) : null}
@@ -456,13 +462,13 @@ export function MatchView({
         <div className="match-result-modal">
           <div className="match-result-modal__backdrop" />
           <div className="match-result-modal__card">
-            <div className="match-result-modal__eyebrow">Партия завершена</div>
-            <h2>{isPlayerWinner ? "Победа" : "Поражение"}</h2>
+            <div className="match-result-modal__eyebrow">РџР°СЂС‚РёСЏ Р·Р°РІРµСЂС€РµРЅР°</div>
+            <h2>{isPlayerWinner ? "РџРѕР±РµРґР°" : "РџРѕСЂР°Р¶РµРЅРёРµ"}</h2>
             <p>{winnerReasonLabel(state.winner_reason)}</p>
-            <div className="match-result-modal__meta">Победитель: {formatSide(state.winner)}</div>
+            <div className="match-result-modal__meta">РџРѕР±РµРґРёС‚РµР»СЊ: {formatSide(state.winner)}</div>
             <div className="match-result-modal__actions">
               <button className="accent-button" onClick={onLeave}>
-                В лобби
+                Р’ Р»РѕР±Р±Рё
               </button>
             </div>
           </div>

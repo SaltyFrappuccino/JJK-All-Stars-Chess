@@ -5,6 +5,7 @@ import blackInumaki from "../../../assets/pieces/black_inumaki.png";
 import blackJogo from "../../../assets/pieces/black_jogo.png";
 import blackKenjaku from "../../../assets/pieces/black_kenjaku.png";
 import blackMahito from "../../../assets/pieces/black_mahito.png";
+import blackMahoraga from "../../../assets/pieces/black_mahoraga.png";
 import blackMaki from "../../../assets/pieces/black_maki.png";
 import blackMegumi from "../../../assets/pieces/black_megumi.png";
 import blackNanami from "../../../assets/pieces/black_nanami.png";
@@ -21,6 +22,7 @@ import whiteInumaki from "../../../assets/pieces/white_inumaki.png";
 import whiteJogo from "../../../assets/pieces/white_jogo.png";
 import whiteKenjaku from "../../../assets/pieces/white_kenjaku.png";
 import whiteMahito from "../../../assets/pieces/white_mahito.png";
+import whiteMahoraga from "../../../assets/pieces/white_mahoraga.png";
 import whiteMaki from "../../../assets/pieces/white_maki.png";
 import whiteMegumi from "../../../assets/pieces/white_megumi.png";
 import whiteNanami from "../../../assets/pieces/white_nanami.png";
@@ -49,6 +51,7 @@ export const pieceImageMap: Record<string, string> = {
   white_choso: whiteChoso,
   white_todo: whiteTodo,
   white_maki: whiteMaki,
+  white_mahoraga: whiteMahoraga,
   white_inumaki: whiteInumaki,
   black_yuta: blackYuta,
   black_dagon: blackDagon,
@@ -65,6 +68,7 @@ export const pieceImageMap: Record<string, string> = {
   black_choso: blackChoso,
   black_todo: blackTodo,
   black_maki: blackMaki,
+  black_mahoraga: blackMahoraga,
   black_inumaki: blackInumaki,
 };
 
@@ -84,6 +88,7 @@ const pieceNames: Record<string, string> = {
   Choso: "Чосо",
   Todo: "Яой Тодо",
   Maki: "Маки Дзэнин",
+  Mahoraga: "Махорага",
   Inumaki: "Тоге Инумаки",
 };
 

@@ -1,0 +1,390 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JJK All-Stars Chess - FAQ</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero__copy">
+          <p class="hero__eyebrow">FAQ / GitHub Pages</p>
+          <h1>JJK All-Stars Chess</h1>
+          <p class="hero__lead">
+            Полный справочник по фигурам, техникам, РТ и статус-эффектам. Эта страница статическая и может жить отдельно в
+            <code>/docs</code>.
+          </p>
+          <div class="hero__chips">
+            <a href="#rules" class="chip">База</a>
+            <a href="#pieces" class="chip">Фигуры</a>
+            <a href="#abilities" class="chip">Техники и РТ</a>
+            <a href="#statuses" class="chip">Статусы</a>
+          </div>
+        </div>
+        <div class="hero__art" aria-hidden="true">
+          <svg viewBox="0 0 460 320">
+            <defs>
+              <radialGradient id="pinkGlow" cx="38%" cy="40%" r="55%">
+                <stop offset="0%" stop-color="rgba(255, 110, 180, 0.95)"></stop>
+                <stop offset="45%" stop-color="rgba(255, 110, 180, 0.26)"></stop>
+                <stop offset="100%" stop-color="rgba(255, 110, 180, 0)"></stop>
+              </radialGradient>
+              <radialGradient id="blueGlow" cx="62%" cy="36%" r="50%">
+                <stop offset="0%" stop-color="rgba(99, 227, 255, 0.95)"></stop>
+                <stop offset="45%" stop-color="rgba(99, 227, 255, 0.24)"></stop>
+                <stop offset="100%" stop-color="rgba(99, 227, 255, 0)"></stop>
+              </radialGradient>
+              <linearGradient id="pinkStroke" x1="0%" x2="100%">
+                <stop offset="0%" stop-color="#ff72b7"></stop>
+                <stop offset="100%" stop-color="#ffb0d1"></stop>
+              </linearGradient>
+              <linearGradient id="blueStroke" x1="0%" x2="100%">
+                <stop offset="0%" stop-color="#74e7ff"></stop>
+                <stop offset="100%" stop-color="#b1d8ff"></stop>
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="460" height="320" rx="28" fill="rgba(10, 13, 24, 0.85)"></rect>
+            <ellipse cx="168" cy="106" rx="128" ry="108" fill="url(#pinkGlow)"></ellipse>
+            <ellipse cx="298" cy="92" rx="136" ry="116" fill="url(#blueGlow)"></ellipse>
+            <g opacity="0.28">
+              <circle cx="238" cy="118" r="72" fill="none" stroke="#ff71b7"></circle>
+              <circle cx="238" cy="118" r="102" fill="none" stroke="#ff71b7"></circle>
+              <circle cx="238" cy="118" r="132" fill="none" stroke="#66e6ff"></circle>
+              <circle cx="238" cy="118" r="158" fill="none" stroke="#66e6ff"></circle>
+            </g>
+            <rect x="0" y="228" width="460" height="92" fill="rgba(7, 9, 16, 0.82)"></rect>
+            <g transform="translate(126 102)">
+              <path d="M18 28 H58 L66 40 V132 H10 V40 Z" fill="none" stroke="url(#pinkStroke)" stroke-width="5"></path>
+              <path d="M24 132 H52 L58 152 H18 Z" fill="none" stroke="url(#pinkStroke)" stroke-width="5"></path>
+            </g>
+            <g transform="translate(194 44)">
+              <path d="M28 16 H86 L96 34 V174 H18 V34 Z" fill="none" stroke="url(#pinkStroke)" stroke-width="6"></path>
+              <path d="M36 174 H78 L90 204 H24 Z" fill="none" stroke="url(#pinkStroke)" stroke-width="6"></path>
+              <path d="M46 0 H68 L74 12 H40 Z" fill="none" stroke="url(#pinkStroke)" stroke-width="5"></path>
+            </g>
+            <g transform="translate(304 94)">
+              <path d="M24 18 H64 L72 34 V128 H16 V34 Z" fill="none" stroke="url(#blueStroke)" stroke-width="5"></path>
+              <path d="M30 128 H58 L64 146 H24 Z" fill="none" stroke="url(#blueStroke)" stroke-width="5"></path>
+            </g>
+          </svg>
+        </div>
+      </header>
+
+      <main class="content">
+        <section id="rules" class="panel">
+          <div class="section-head">
+            <h2>Базовые Правила</h2>
+            <p>Короткая выжимка того, как вообще устроена партия.</p>
+          </div>
+          <div class="rules-grid">
+            <article class="rule-card">
+              <h3>Энергия</h3>
+              <p>Каждый свой ход игрок получает +2 энергии. За взятие фигуры - ещё +1. Максимум: 10.</p>
+            </article>
+            <article class="rule-card">
+              <h3>Один Ход</h3>
+              <p>За ход можно сделать только одно действие: обычный ход, технику или РТ.</p>
+            </article>
+            <article class="rule-card">
+              <h3>Сукуна</h3>
+              <p>Сукуна не умирает от дальней техники или РТ напрямую. Вместо этого создаётся шах техникой.</p>
+            </article>
+            <article class="rule-card">
+              <h3>РТ</h3>
+              <p>РТ дорогие, одноразовые и после любой РТ действует глобальный откат на 3 своих хода.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="pieces" class="panel">
+          <div class="section-head">
+            <h2>Фигуры</h2>
+            <p>Все персонажи и их фактическое поведение в текущей версии игры.</p>
+          </div>
+          <div class="piece-grid">
+            <article class="piece-card">
+              <img src="./assets/pieces/white_sukuna.png" alt="Сукуна" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Король</p>
+                <h3>Сукуна</h3>
+                <p>Центр всей партии. Давит ближней угрозой и раскрывает РТ через захват опасной зоны вокруг себя.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Разрубание - уничтожает соседнюю вражескую фигуру.</dd>
+                  <dt>РТ</dt><dd>Гробница Зла - до двух целей в радиусе 2 получают рассечение.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_gojo.png" alt="Сатору Годзё" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Ферзь</p>
+                <h3>Сатору Годзё</h3>
+                <p>Главный дальний контролёр. Его техника идёт по циклу и меняет темп поля от хода к ходу.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Синий → Красный → Фиолетовый. Притяжение, дальний удар и усиленный дальний удар.</dd>
+                  <dt>РТ</dt><dd>Необъятная Пустота - парализует до трёх целей в радиусе 2.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_yuta.png" alt="Юта Оккотсу" class="piece-card__image piece-card__image--yuta" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Ладья</p>
+                <h3>Юта Оккотсу</h3>
+                <p>Его сила зависит от окружения. Сам по себе он не имеет базовой техники и раскрывается через копирование.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Отсутствует по умолчанию. Появляется после успешного копирования через РТ.</dd>
+                  <dt>РТ</dt><dd>Истинная Взаимная Любовь - копирует текущую технику фигуры в радиусе 2.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_jogo.png" alt="Дзёго" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Ладья</p>
+                <h3>Дзёго</h3>
+                <p>Контроль прямых линий и огненное давление через лаву.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Вулканический Удар - дальний удар по прямой, после которого клетка становится лавой.</dd>
+                  <dt>РТ</dt><dd>Гроб Стальной Горы - создаёт лаву на нескольких клетках и накладывает ожог.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_kenjaku.png" alt="Кэндзяку" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Слон</p>
+                <h3>Кэндзяку</h3>
+                <p>Ломает пешечные построения, двигает чужой фронт и вскрывает линии.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Манипуляция - передвигает вражескую пешку на свободную соседнюю клетку.</dd>
+                  <dt>РТ</dt><dd>Чрево Изобилия - подавляет пешек в зоне и сдвигает одну из них.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_mahito.png" alt="Махито" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Слон</p>
+                <h3>Махито</h3>
+                <p>Играет от искажения и вынуждает соперника тратить ходы на спасение фигур.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Искажение Души - если целью не сходят, она погибает.</dd>
+                  <dt>РТ</dt><dd>Самовоплощение Совершенства - до двух фигур получают искажение и молчание.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_yuki.png" alt="Юки Цукумо" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Конь</p>
+                <h3>Юки Цукумо</h3>
+                <p>Резкие позиционные врывы, прыжки и давление массы вблизи.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Звёздная Масса - прыжок с добиванием соседней цели после приземления.</dd>
+                  <dt>РТ</dt><dd>Коллапс Массы - притягивает врагов и вешает давление массы.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_dagon.png" alt="Дагон" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Конь</p>
+                <h3>Дагон</h3>
+                <p>Локальный контролёр зоны. Выталкивает цели и режет чужие техники вблизи.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Рой Сикигами - отталкивает цель от Дагона на 2 клетки, а если нельзя - на 1.</dd>
+                  <dt>РТ</dt><dd>Горизонт Пленительной Сканды - локальная зона контроля вокруг Дагона.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_yuji.png" alt="Юдзи Итадори" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Пешка</p>
+                <h3>Юдзи Итадори</h3>
+                <p>Лобовая пешка с прямым пробоем вперёд.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Чёрная Вспышка - берёт фигуру прямо перед собой.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_megumi.png" alt="Мэгуми Фусигуро" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Пешка</p>
+                <h3>Мэгуми Фусигуро</h3>
+                <p>Жертвенная пешка. Если активирует технику на двух последних рядах врага, на её месте появляется Махорага.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Проклятье Пятого Ранга - Мэгуми уничтожает себя. У края врага вместо него появляется Махорага.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_mahoraga.png" alt="Махорага" class="piece-card__image piece-card__image--mahoraga" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Особая Пешка</p>
+                <h3>Махорага</h3>
+                <p>Призванная фигура Мэгуми. Сначала ходит как пешка, затем расширяет набор движений через колесо.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Прокрут Колеса - открывает новые схемы хода: пешка → конь → конь+слон → слон+ладья.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_nobara.png" alt="Нобара Кугисаки" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Пешка</p>
+                <h3>Нобара Кугисаки</h3>
+                <p>Помечает цель и режет её технику. Хороша для подготовки размена.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Резонанс - помечает цель и запрещает ей технику на 1 ход.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_nanami.png" alt="Нанами Кэнто" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Пешка</p>
+                <h3>Нанами Кэнто</h3>
+                <p>Дальняя диагональная казнь через точечную атаку.</p>
+                <dl>
+                  <dt>Техника</dt><dd>7:3 - берёт фигуру по дальней диагонали на 2 клетки вперёд.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_choso.png" alt="Чосо" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Пешка</p>
+                <h3>Чосо</h3>
+                <p>Линейный прокол на 1-2 клетки по чистой линии.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Пронзающая Кровь - атакует вперёд по свободной линии.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_todo.png" alt="Яой Тодо" class="piece-card__image piece-card__image--todo" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Пешка</p>
+                <h3>Яой Тодо</h3>
+                <p>Меняет позиции союзных пешек и ломает фронт противника.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Буги-Вуги - меняется местами с союзной пешкой в радиусе 2 клеток.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_maki.png" alt="Маки Дзэнин" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Пешка</p>
+                <h3>Маки Дзэнин</h3>
+                <p>Простая и жёсткая пешка с бесплатным фронтальным добиванием.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Небесное Ограничение - бесплатно берёт фигуру прямо перед собой.</dd>
+                </dl>
+              </div>
+            </article>
+
+            <article class="piece-card">
+              <img src="./assets/pieces/white_inumaki.png" alt="Тоге Инумаки" />
+              <div class="piece-card__body">
+                <p class="piece-card__role">Пешка</p>
+                <h3>Тоге Инумаки</h3>
+                <p>Контроль соседней клетки через отключение хода и техники.</p>
+                <dl>
+                  <dt>Техника</dt><dd>Проклятая Речь - соседняя фигура теряет движение и технику на 1 ход.</dd>
+                </dl>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="abilities" class="panel">
+          <div class="section-head">
+            <h2>Техники и РТ</h2>
+            <p>Сводный каталог, если нужно быстро найти конкретный эффект.</p>
+          </div>
+
+          <div class="ability-columns">
+            <div>
+              <h3 class="subhead">Техники</h3>
+              <div class="ability-list">
+                <article><strong>Разрубание</strong><span>Сукуна</span><p>Уничтожает соседнюю вражескую фигуру.</p></article>
+                <article><strong>Синий</strong><span>Годзё</span><p>Притягивает цель на 1 клетку к Годзё по линии.</p></article>
+                <article><strong>Красный</strong><span>Годзё</span><p>Дальний удар до 3 клеток.</p></article>
+                <article><strong>Фиолетовый</strong><span>Годзё</span><p>Усиленный дальний удар до 4 клеток.</p></article>
+                <article><strong>Вулканический Удар</strong><span>Дзёго</span><p>Дальний удар по прямой с созданием лавы.</p></article>
+                <article><strong>Манипуляция</strong><span>Кэндзяку</span><p>Сдвигает вражескую пешку на свободную соседнюю клетку.</p></article>
+                <article><strong>Искажение Души</strong><span>Махито</span><p>Если фигурой не сходят, она погибает.</p></article>
+                <article><strong>Звёздная Масса</strong><span>Юки</span><p>Прыжок с добиванием соседней цели.</p></article>
+                <article><strong>Рой Сикигами</strong><span>Дагон</span><p>Отталкивает цель от Дагона на 2 клетки, а если нельзя - на 1.</p></article>
+                <article><strong>Чёрная Вспышка</strong><span>Юдзи</span><p>Фронтальное взятие пешкой.</p></article>
+                <article><strong>Проклятье Пятого Ранга</strong><span>Мэгуми</span><p>Самоуничтожение с призывом Махораги на последних рядах врага.</p></article>
+                <article><strong>Прокрут Колеса</strong><span>Махорага</span><p>Расширяет набор ходов Махораги по этапам.</p></article>
+                <article><strong>Резонанс</strong><span>Нобара</span><p>Пометка цели и запрет на технику.</p></article>
+                <article><strong>7:3</strong><span>Нанами</span><p>Дальнее диагональное взятие.</p></article>
+                <article><strong>Пронзающая Кровь</strong><span>Чосо</span><p>Линейная атака вперёд до 2 клеток.</p></article>
+                <article><strong>Буги-Вуги</strong><span>Яой Тодо</span><p>Обмен местами с союзной пешкой.</p></article>
+                <article><strong>Небесное Ограничение</strong><span>Маки</span><p>Бесплатное фронтальное взятие.</p></article>
+                <article><strong>Проклятая Речь</strong><span>Тоге Инумаки</span><p>Лишает соседнюю цель движения и техники.</p></article>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="subhead">РТ</h3>
+              <div class="ability-list">
+                <article><strong>Гробница Зла</strong><span>Сукуна</span><p>До двух целей получают рассечение в радиусе 2.</p></article>
+                <article><strong>Необъятная Пустота</strong><span>Годзё</span><p>Парализует до трёх целей в радиусе 2.</p></article>
+                <article><strong>Истинная Взаимная Любовь</strong><span>Юта</span><p>Копирует текущую технику любой фигуры в радиусе 2.</p></article>
+                <article><strong>Гроб Стальной Горы</strong><span>Дзёго</span><p>Создаёт лаву на нескольких клетках и накладывает ожог.</p></article>
+                <article><strong>Чрево Изобилия</strong><span>Кэндзяку</span><p>Подавляет пешек в зоне и двигает одну из них.</p></article>
+                <article><strong>Самовоплощение Совершенства</strong><span>Махито</span><p>Даёт искажение и молчание двум фигурам.</p></article>
+                <article><strong>Коллапс Массы</strong><span>Юки</span><p>Притягивает врагов и вешает давление массы.</p></article>
+                <article><strong>Горизонт Пленительной Сканды</strong><span>Дагон</span><p>Локальная зона подавления техник и захвата энергии.</p></article>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="statuses" class="panel">
+          <div class="section-head">
+            <h2>Статус-Эффекты</h2>
+            <p>Все основные дебаффы и особые состояния на поле.</p>
+          </div>
+          <div class="status-grid">
+            <article><h3>Искажение</h3><p>Если этой фигурой не сходить на следующем ходу владельца, она погибнет.</p></article>
+            <article><h3>Рассечён</h3><p>Если фигура останется в опасной зоне до следующего своего хода, она погибнет.</p></article>
+            <article><h3>Ожог</h3><p>Если фигура не уйдёт с лавы до следующего своего хода, она погибнет.</p></article>
+            <article><h3>Молчание</h3><p>Фигура не может использовать технику или РТ.</p></article>
+            <article><h3>Паралич</h3><p>Фигура не может двигаться и использовать техники.</p></article>
+            <article><h3>Подчинение</h3><p>Фигура временно подавлена и не может действовать.</p></article>
+            <article><h3>Давление Массы</h3><p>Фигура не может использовать технику или РТ на следующий ход.</p></article>
+            <article><h3>Резонанс</h3><p>При взятии этой фигуры атакующий получает дополнительную энергию.</p></article>
+            <article><h3>Стоп</h3><p>Фигура не может двигаться и использовать технику 1 ход.</p></article>
+            <article><h3>Без Энергии За Взятие</h3><p>За взятие этой фигурой не начисляется энергия.</p></article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
+

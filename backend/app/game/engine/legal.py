@@ -80,7 +80,42 @@ def pawn_moves(state: MatchState, piece: Piece) -> list[dict[str, Any]]:
     return result
 
 
+def merge_moves(*move_groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    merged: list[dict[str, Any]] = []
+    seen: set[tuple[str, int, int]] = set()
+    for group in move_groups:
+        for action in group:
+            x, y = action["to"]
+            key = (action["piece_id"], x, y)
+            if key in seen:
+                continue
+            seen.add(key)
+            merged.append(action)
+    return merged
+
+
+def mahoraga_stage(piece: Piece) -> int:
+    if piece.technique_state and piece.technique_state.startswith("mahoraga_"):
+        suffix = piece.technique_state.rsplit("_", 1)[-1]
+        if suffix.isdigit():
+            return max(0, min(3, int(suffix)))
+    return 0
+
+
+def mahoraga_moves(state: MatchState, piece: Piece) -> list[dict[str, Any]]:
+    stage = mahoraga_stage(piece)
+    if stage == 0:
+        return pawn_moves(state, piece)
+    if stage == 1:
+        return merge_moves(pawn_moves(state, piece), knight_moves(state, piece))
+    if stage == 2:
+        return merge_moves(pawn_moves(state, piece), knight_moves(state, piece), slide_moves(state, piece, DIAG_DIRS))
+    return merge_moves(pawn_moves(state, piece), slide_moves(state, piece, DIAG_DIRS), slide_moves(state, piece, ORTHO_DIRS))
+
+
 def legal_normal_moves(state: MatchState, piece: Piece) -> list[dict[str, Any]]:
+    if piece.name == "Mahoraga":
+        return mahoraga_moves(state, piece)
     if piece.role == "rook":
         return slide_moves(state, piece, ORTHO_DIRS)
     if piece.role == "bishop":
@@ -119,6 +154,8 @@ def current_technique_id(piece: Piece) -> str | None:
         return piece.technique_state or "gojo_blue"
     if piece.name == "Yuta":
         return piece.technique_state
+    if piece.name == "Mahoraga":
+        return "mahoraga"
     return piece.name.lower()
 
 
@@ -155,7 +192,7 @@ def push_steps_away(state: MatchState, source: Piece, target: Piece, max_steps: 
 def legal_technique_actions(state: MatchState, piece: Piece) -> list[dict[str, Any]]:
     if piece.cooldown > 0 or has_status(state, piece.id, "silence") or has_status(state, piece.id, "paralysis") or has_status(state, piece.id, "stop") or has_status(state, piece.id, "domination"):
         return []
-    if piece.role == "pawn" and piece.technique_used:
+    if piece.role == "pawn" and piece.name != "Mahoraga" and piece.technique_used:
         return []
     technique_id = current_technique_id(piece)
     if piece.name == "Yuta" and technique_id is None:
@@ -252,6 +289,9 @@ def legal_technique_actions(state: MatchState, piece: Piece) -> list[dict[str, A
             actions.append({"kind": "technique_cast", "piece_id": piece.id, "targets": [target.id]})
     elif technique_id == "megumi":
         actions.append({"kind": "technique_cast", "piece_id": piece.id})
+    elif technique_id == "mahoraga":
+        if mahoraga_stage(piece) < 3:
+            actions.append({"kind": "technique_cast", "piece_id": piece.id})
     elif technique_id == "nobara":
         step = direction_for_side(piece.side)
         for dx in (-1, 1):
@@ -350,6 +390,7 @@ def technique_cost(piece: Piece) -> int:
         "dagon": 4,
         "yuji": 2,
         "megumi": 2,
+        "mahoraga": 3,
         "nobara": 2,
         "nanami": 2,
         "choso": 2,

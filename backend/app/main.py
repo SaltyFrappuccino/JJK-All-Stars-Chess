@@ -4,17 +4,18 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import ValidationError
 
-from app.schemas import BotMatchRequest, GuestSessionResponse, RoomCreateRequest, RoomJoinRequest
+from app.schemas import ActionEnvelope, BotMatchRequest, GuestSessionResponse, MatchEnvelope, RoomCreateRequest, RoomJoinRequest
 from app.game.engine.engine import EngineError
 from app.services.match_service import match_service
-from app.storage.db import Base, engine
+from app.storage.db import init_db
 from app.storage.repository import create_guest, get_guest_by_token, get_match, list_history
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    Base.metadata.create_all(bind=engine)
+    init_db()
     yield
 
 
@@ -48,7 +49,10 @@ def join_room(room_code: str, payload: RoomJoinRequest):
     guest = get_guest_by_token(payload.token)
     if not guest:
         raise HTTPException(status_code=401, detail="Invalid token")
-    room_code, match_id = match_service.join_pvp_room(room_code, guest.id)
+    try:
+        room_code, match_id = match_service.join_pvp_room(room_code, guest.id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return {"room_code": room_code, "match_id": match_id, "side": "black"}
 
 
@@ -108,24 +112,41 @@ async def match_socket(websocket: WebSocket, match_id: str, token: str):
     if not guest:
         await websocket.close(code=4401)
         return
-    session = await match_service.connect(match_id, guest.id, websocket)
+    try:
+        session = await match_service.connect(match_id, guest.id, websocket)
+    except KeyError:
+        await websocket.close(code=4404)
+        return
     await websocket.send_json({"type": "match_snapshot", "payload": {"state": session.state.to_public()}})
     try:
         while True:
-            message = await websocket.receive_json()
-            message_type = message.get("type")
+            raw_message = await websocket.receive_json()
+            try:
+                message = MatchEnvelope.model_validate(raw_message)
+            except ValidationError:
+                await websocket.send_json({"type": "invalid_action", "payload": {"message": "Некорректный формат сообщения."}})
+                continue
+            message_type = message.type
             if message_type == "sync_request":
                 await websocket.send_json({"type": "match_snapshot", "payload": {"state": session.state.to_public()}})
             elif message_type == "request_legal_actions":
-                piece_id = message["payload"]["piece_id"]
+                piece_id = message.payload.get("piece_id")
+                if not isinstance(piece_id, str):
+                    await websocket.send_json({"type": "invalid_action", "payload": {"message": "Не указан идентификатор фигуры."}})
+                    continue
                 actions = match_service.legal_actions_for_piece(match_id, piece_id)
                 await websocket.send_json({"type": "legal_actions", "payload": {"piece_id": piece_id, "actions": actions}})
             elif message_type == "submit_action":
                 try:
-                    await match_service.handle_action(match_id, message["payload"]["action"])
+                    action = ActionEnvelope.model_validate(message.payload.get("action"))
+                    await match_service.handle_action(match_id, action.model_dump(exclude_none=True, exclude_defaults=True))
+                except ValidationError:
+                    await websocket.send_json({"type": "invalid_action", "payload": {"message": "Некорректное действие."}})
                 except EngineError as exc:
                     await websocket.send_json({"type": "invalid_action", "payload": {"message": str(exc)}})
             elif message_type == "resign":
                 await match_service.handle_action(match_id, {"kind": "resign"})
+            else:
+                await websocket.send_json({"type": "invalid_action", "payload": {"message": "Неизвестный тип сообщения."}})
     except WebSocketDisconnect:
         match_service.disconnect(session, guest.id, websocket)

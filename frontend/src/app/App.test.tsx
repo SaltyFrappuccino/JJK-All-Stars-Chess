@@ -15,6 +15,7 @@ vi.stubGlobal(
         : { guest_id: "g1", token: "t1", display_name: "Игрок-1" },
   })),
 );
+vi.stubGlobal("alert", vi.fn());
 
 describe("App", () => {
   it("renders title", async () => {

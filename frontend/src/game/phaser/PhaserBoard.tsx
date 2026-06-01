@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { useEffect, useRef } from "react";
 
+import { findActionForCell, getDomainOverlayCells } from "../../lib/actions";
 import { formatPieceName, formatStatus, getStatusDescription, pieceImageMap } from "../../lib/presentation";
 import type { GameAction, MatchState } from "../../lib/types";
 
@@ -93,23 +94,127 @@ class BoardScene extends Phaser.Scene {
     }
   }
 
-  private collectActionAtCell(x: number, y: number): GameAction | null {
-    const actions = this.legalActions.filter((action) => {
-      if (action.to) {
-        return action.to[0] === x && action.to[1] === y;
-      }
-      if (action.cells) {
-        return action.cells.some((cell) => cell[0] === x && cell[1] === y);
-      }
-      if (action.targets) {
-        return action.targets.some((targetId) => {
-          const target = this.snapshot?.pieces[targetId];
-          return target && target.x === x && target.y === y;
-        });
-      }
-      return false;
+  private renderDomainOverlay() {
+    if (!this.snapshot?.active_domain) {
+      return;
+    }
+
+    const domain = this.snapshot.active_domain;
+    const caster = this.snapshot.pieces[domain.caster_id];
+    if (!caster || !caster.alive) {
+      return;
+    }
+
+    const cells = getDomainOverlayCells(this.snapshot);
+    const isWarmDomain = ["Malevolent Shrine", "Coffin of the Iron Mountain", "Self-Embodiment of Perfection", "Womb of Abundance"].includes(
+      domain.name,
+    );
+    const fillColor = isWarmDomain ? 0xff6f91 : 0x69e3ff;
+    const strokeColor = isWarmDomain ? 0xffc173 : 0xa5f0ff;
+
+    cells.forEach((cell) => {
+      const left = OFFSET + cell[0] * CELL;
+      const top = OFFSET + cell[1] * CELL;
+      const overlay = this.add.rectangle(left + CELL / 2 - 1, top + CELL / 2 - 1, CELL - 10, CELL - 10, fillColor, 0.08);
+      overlay.setStrokeStyle(2, strokeColor, 0.38);
+
+      const pulse = this.add.rectangle(left + CELL / 2 - 1, top + CELL / 2 - 1, CELL - 22, CELL - 22, fillColor, 0.12);
+      pulse.setStrokeStyle(1, strokeColor, 0.5);
+
+      this.tweens.add({
+        targets: pulse,
+        alpha: { from: 0.2, to: 0.05 },
+        scaleX: { from: 0.92, to: 1.02 },
+        scaleY: { from: 0.92, to: 1.02 },
+        duration: 1200,
+        yoyo: true,
+        repeat: -1,
+        ease: "Sine.easeInOut",
+      });
     });
-    return actions[0] ?? null;
+
+    const cx = OFFSET + caster.x * CELL + CELL / 2;
+    const cy = OFFSET + caster.y * CELL + CELL / 2;
+    const sigil = this.add.circle(cx, cy, 34, strokeColor, 0.12).setStrokeStyle(3, strokeColor, 0.7);
+    this.tweens.add({
+      targets: sigil,
+      alpha: { from: 0.22, to: 0.08 },
+      scale: { from: 0.94, to: 1.08 },
+      duration: 900,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
+    });
+  }
+
+  private renderTerrainOverlay(x: number, y: number) {
+    if (!this.snapshot) {
+      return;
+    }
+
+    const terrains = this.snapshot.terrains.filter((terrain) => terrain.x === x && terrain.y === y);
+    if (!terrains.length) {
+      return;
+    }
+
+    const left = OFFSET + x * CELL;
+    const top = OFFSET + y * CELL;
+
+    terrains.forEach((terrain) => {
+      if (terrain.kind !== "lava") {
+        return;
+      }
+
+      const base = this.add.rectangle(left + CELL / 2 - 1, top + CELL / 2 - 1, CELL - 8, CELL - 8, 0xff6a00, 0.18);
+      base.setStrokeStyle(2, 0xffbf66, 0.6);
+
+      const core = this.add.rectangle(left + CELL / 2 - 1, top + CELL / 2 - 1, CELL - 28, CELL - 28, 0xffb347, 0.24);
+      const sparkA = this.add.circle(left + 28, top + 28, 6, 0xfff0b0, 0.5);
+      const sparkB = this.add.circle(left + CELL - 28, top + CELL - 30, 5, 0xff9248, 0.52);
+
+      this.tweens.add({
+        targets: [base, core],
+        alpha: { from: 0.24, to: 0.1 },
+        duration: 520,
+        yoyo: true,
+        repeat: -1,
+        ease: "Sine.easeInOut",
+      });
+      this.tweens.add({
+        targets: core,
+        scaleX: { from: 0.92, to: 1.04 },
+        scaleY: { from: 0.92, to: 1.04 },
+        duration: 680,
+        yoyo: true,
+        repeat: -1,
+        ease: "Sine.easeInOut",
+      });
+      this.tweens.add({
+        targets: sparkA,
+        y: { from: sparkA.y + 2, to: sparkA.y - 6 },
+        alpha: { from: 0.55, to: 0.18 },
+        duration: 640,
+        yoyo: true,
+        repeat: -1,
+        ease: "Sine.easeInOut",
+      });
+      this.tweens.add({
+        targets: sparkB,
+        y: { from: sparkB.y + 4, to: sparkB.y - 7 },
+        alpha: { from: 0.52, to: 0.16 },
+        duration: 720,
+        yoyo: true,
+        repeat: -1,
+        ease: "Sine.easeInOut",
+      });
+    });
+  }
+
+  private collectActionAtCell(x: number, y: number): GameAction | null {
+    if (!this.snapshot) {
+      return null;
+    }
+    return findActionForCell(this.legalActions, x, y, this.snapshot.pieces);
   }
 
   private toBoardCell(worldX: number, worldY: number): [number, number] | null {
@@ -302,12 +407,16 @@ class BoardScene extends Phaser.Scene {
           color: "#7f93ad",
         });
 
+        this.renderTerrainOverlay(x, y);
+
         const action = this.collectActionAtCell(x, y);
         if (action) {
           this.renderActionMarker(x, y, action.kind);
         }
       }
     }
+
+    this.renderDomainOverlay();
 
     Object.values(this.snapshot.pieces)
       .filter((piece) => piece.alive)

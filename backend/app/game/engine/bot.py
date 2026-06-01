@@ -13,6 +13,8 @@ def evaluate_state(state: MatchState, perspective: str) -> float:
     score = state.energy[perspective] - state.energy[other_side(perspective)]
     for piece in alive_pieces(state):
         value = PIECE_VALUES[piece.role]
+        if piece.name == "Mahoraga":
+            value = 6
         score += value if piece.side == perspective else -value
         if piece.cooldown == 0 and piece.role != "pawn":
             score += 0.2 if piece.side == perspective else -0.2

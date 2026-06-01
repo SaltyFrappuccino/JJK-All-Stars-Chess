@@ -19,6 +19,7 @@ class MatchSession:
         self.black_guest_id = black_guest_id
         self.bot_side = bot_side
         self.connections: dict[str, list[WebSocket]] = defaultdict(list)
+        self.lock = asyncio.Lock()
 
 
 class MatchService:
@@ -30,12 +31,13 @@ class MatchService:
         state = create_engine_state()
         repository.create_match(match_id, state.to_public(), white_guest_id, None)
         room = repository.create_room(match_id, white_guest_id)
+        repository.attach_room_code(match_id, room.code)
         self.sessions[match_id] = MatchSession(match_id, state, white_guest_id, None)
         return room.code, match_id
 
     def join_pvp_room(self, room_code: str, black_guest_id: str) -> tuple[str, str]:
         room = repository.save_room_join(room_code, black_guest_id)
-        session = self.sessions[room.match_id]
+        session = self.get_session(room.match_id)
         session.black_guest_id = black_guest_id
         repository.update_match(room.match_id, session.state.to_public(), session.state.event_log, None, None)
         return room.code, room.match_id
@@ -86,22 +88,9 @@ class MatchService:
 
     async def handle_action(self, match_id: str, action: dict) -> MatchSession:
         session = self.get_session(match_id)
-        session.state = apply_action(session.state, action)
-        repository.update_match(
-            match_id,
-            session.state.to_public(),
-            session.state.event_log,
-            session.state.winner,
-            session.state.winner_reason,
-        )
-        await self.broadcast(session, "action_resolved", {"state": session.state.to_public(), "events": session.state.event_log[-4:]})
-        if session.bot_side and session.state.side_to_move == session.bot_side and not session.state.winner:
-            await asyncio.sleep(0.1)
-            try:
-                chosen_action = bot_action(session.state, session.bot_side)
-            except Exception:
-                chosen_action = {"kind": "resign"}
-            session.state = apply_action(session.state, chosen_action)
+        broadcasts: list[dict[str, dict]] = []
+        async with session.lock:
+            session.state = apply_action(session.state, action)
             repository.update_match(
                 match_id,
                 session.state.to_public(),
@@ -109,7 +98,23 @@ class MatchService:
                 session.state.winner,
                 session.state.winner_reason,
             )
-            await self.broadcast(session, "action_resolved", {"state": session.state.to_public(), "events": session.state.event_log[-4:]})
+            broadcasts.append({"type": "action_resolved", "payload": {"state": session.state.to_public(), "events": session.state.event_log[-4:]}})
+            if session.bot_side and session.state.side_to_move == session.bot_side and not session.state.winner:
+                try:
+                    chosen_action = bot_action(session.state, session.bot_side)
+                except Exception:
+                    chosen_action = {"kind": "resign"}
+                session.state = apply_action(session.state, chosen_action)
+                repository.update_match(
+                    match_id,
+                    session.state.to_public(),
+                    session.state.event_log,
+                    session.state.winner,
+                    session.state.winner_reason,
+                )
+                broadcasts.append({"type": "action_resolved", "payload": {"state": session.state.to_public(), "events": session.state.event_log[-4:]}})
+        for message in broadcasts:
+            await self.broadcast(session, message["type"], message["payload"])
         return session
 
     def legal_actions_for_piece(self, match_id: str, piece_id: str) -> list[dict]:
