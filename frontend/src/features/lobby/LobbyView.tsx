@@ -57,61 +57,6 @@ function resultLabel(item: HistoryItem) {
   return "Победа";
 }
 
-function HeroIllustration() {
-  return (
-    <svg viewBox="0 0 420 280" className="hero-art-svg" aria-hidden="true">
-      <defs>
-        <radialGradient id="heroHaloPink" cx="40%" cy="44%" r="55%">
-          <stop offset="0%" stopColor="rgba(255,109,170,0.95)" />
-          <stop offset="40%" stopColor="rgba(255,109,170,0.28)" />
-          <stop offset="100%" stopColor="rgba(255,109,170,0)" />
-        </radialGradient>
-        <radialGradient id="heroHaloBlue" cx="66%" cy="42%" r="48%">
-          <stop offset="0%" stopColor="rgba(100,232,255,0.9)" />
-          <stop offset="42%" stopColor="rgba(100,232,255,0.24)" />
-          <stop offset="100%" stopColor="rgba(100,232,255,0)" />
-        </radialGradient>
-        <linearGradient id="heroLinePink" x1="0%" x2="100%">
-          <stop offset="0%" stopColor="#ff73b4" />
-          <stop offset="100%" stopColor="#ffb2d2" />
-        </linearGradient>
-        <linearGradient id="heroLineBlue" x1="0%" x2="100%">
-          <stop offset="0%" stopColor="#6fe8ff" />
-          <stop offset="100%" stopColor="#8fb8ff" />
-        </linearGradient>
-      </defs>
-      <rect x="0" y="0" width="420" height="280" rx="24" fill="rgba(10,13,22,0.82)" />
-      <ellipse cx="160" cy="102" rx="112" ry="92" fill="url(#heroHaloPink)" />
-      <ellipse cx="270" cy="96" rx="120" ry="108" fill="url(#heroHaloBlue)" />
-      {[78, 102, 126, 150].map((radius) => (
-        <circle key={`pink-${radius}`} cx="212" cy="104" r={radius} fill="none" stroke="rgba(255,110,169,0.14)" strokeWidth="1.2" />
-      ))}
-      {[86, 118, 146].map((radius) => (
-        <circle key={`blue-${radius}`} cx="240" cy="108" r={radius} fill="none" stroke="rgba(100,232,255,0.12)" strokeWidth="1.1" />
-      ))}
-      <rect x="0" y="196" width="420" height="84" fill="rgba(6,8,14,0.8)" />
-      <path d="M130 160 C152 148 162 138 178 122 C198 102 214 90 246 86 C274 82 304 90 336 112" fill="none" stroke="rgba(111,232,255,0.24)" strokeWidth="2.4" />
-      <g transform="translate(138 90)">
-        <circle cx="34" cy="110" r="28" fill="rgba(255,109,170,0.1)" />
-        <path d="M18 14 H50 L56 24 V90 H12 V24 Z" fill="none" stroke="url(#heroLinePink)" strokeWidth="4" />
-        <path d="M24 90 H44 L50 108 H18 Z" fill="none" stroke="url(#heroLinePink)" strokeWidth="4" />
-      </g>
-      <g transform="translate(194 28)">
-        <circle cx="58" cy="160" r="34" fill="rgba(255,109,170,0.12)" />
-        <path d="M34 20 H82 L92 36 V140 H24 V36 Z" fill="none" stroke="url(#heroLinePink)" strokeWidth="5" />
-        <path d="M40 140 H76 L86 168 H30 Z" fill="none" stroke="url(#heroLinePink)" strokeWidth="5" />
-        <path d="M48 0 H68 L72 12 H44 Z" fill="none" stroke="url(#heroLinePink)" strokeWidth="4" />
-      </g>
-      <g transform="translate(282 72)">
-        <circle cx="44" cy="118" r="26" fill="rgba(100,232,255,0.12)" />
-        <path d="M24 14 H60 L68 28 V98 H16 V28 Z" fill="none" stroke="url(#heroLineBlue)" strokeWidth="4" />
-        <path d="M28 98 H56 L62 116 H22 Z" fill="none" stroke="url(#heroLineBlue)" strokeWidth="4" />
-      </g>
-      <path d="M74 248 H350" stroke="rgba(255,255,255,0.06)" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function ProfileSigil() {
   return (
     <svg viewBox="0 0 112 112" aria-hidden="true">
@@ -286,9 +231,6 @@ export function LobbyView({
                 </button>
               </div>
               {!sessionReady && profile ? <div className="status-banner status-banner--muted">Подключение к серверу...</div> : null}
-            </div>
-            <div className="lobby-hero-ref__art">
-              <HeroIllustration />
             </div>
           </section>
 

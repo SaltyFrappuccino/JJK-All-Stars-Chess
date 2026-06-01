@@ -53,21 +53,6 @@ function renderEffectText(text: string): ReactNode {
   });
 }
 
-function FigureSigil({ tone }: { tone: "pink" | "blue" }) {
-  const stroke = tone === "pink" ? "#ff83bf" : "#87ebff";
-  const glow = tone === "pink" ? "rgba(255,131,191,0.18)" : "rgba(135,235,255,0.18)";
-
-  return (
-    <svg viewBox="0 0 120 120" className="faq-sigil" aria-hidden="true">
-      <circle cx="60" cy="60" r="44" fill={glow} />
-      <circle cx="60" cy="60" r="34" fill="none" stroke={stroke} strokeWidth="1.4" opacity="0.35" />
-      <path d="M45 18 H75 L84 30 V90 H36 V30 Z" fill="none" stroke={stroke} strokeWidth="4" />
-      <path d="M49 90 H71 L77 104 H43 Z" fill="none" stroke={stroke} strokeWidth="4" />
-      <path d="M52 10 H68" stroke={stroke} strokeWidth="4" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function AbilityCard({
   title,
   owner,
@@ -164,11 +149,6 @@ export function FaqView({ onBack }: Props) {
               Назад В Лобби
             </button>
           </div>
-        </div>
-        <div className="faq-hero__art">
-          <FigureSigil tone="pink" />
-          <FigureSigil tone="blue" />
-          <FigureSigil tone="pink" />
         </div>
       </section>
 
